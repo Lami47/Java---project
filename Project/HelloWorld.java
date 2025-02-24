@@ -21,8 +21,8 @@ public class HelloWorld {
             int choice = getValidInput(scanner);
             //1st Menu when starting this Java doc
             switch (choice) {
+                // Login
                 case 1 -> {
-                    // Login
                     System.out.println("\nLogin to your account");
                     System.out.print("Enter email: ");
                     String email = scanner.nextLine();
@@ -37,8 +37,9 @@ public class HelloWorld {
                         System.out.println("Invalid email or password.");
                     }
                 }
+
+                //Register
                 case 2 -> {
-                    // Registration
                     System.out.println("Register a new user");
                 
                     // Limit the number of registration attempts
@@ -116,8 +117,8 @@ public class HelloWorld {
                     }
                 }
                 
+                // Closes the app
                 case 3 -> {
-                    // Closes the app
                     exit = true;
                     System.out.println("Exiting the program.");
                 }
