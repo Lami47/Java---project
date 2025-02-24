@@ -1,6 +1,9 @@
-import java.util.Scanner;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class HelloWorld {
     public static void main(String[] args) {
@@ -37,24 +40,82 @@ public class HelloWorld {
                 case 2 -> {
                     // Registration
                     System.out.println("Register a new user");
-                    System.out.print("Enter name: ");
-                    String name = scanner.nextLine();
-                    System.out.print("Enter email: ");
-                    String email = scanner.nextLine();
-
-                    // Check if user already exists
-                    if (libraryDatabase.getUserDatabase().userExists(email)) {
-                        System.out.println("User already exists with this email.");
-                    } else {
-                        System.out.print("Enter password: ");
-                        String password = scanner.nextLine();
-                        System.out.print("Enter date of birth (YYYY-MM-DD): ");
-                        String birthDay = scanner.nextLine();
-
-                        libraryDatabase.getUserDatabase().registerUser(name, email, password, birthDay);
-                        System.out.println("User registered successfully.");
+                
+                    // Limit the number of registration attempts
+                    int attempts = 0;
+                    boolean registrationSuccess = false;
+                    while (attempts < 5 && !registrationSuccess) {
+                        attempts++;
+                
+                        System.out.print("Enter name: ");
+                        String name = scanner.nextLine();
+                
+                        System.out.print("Enter email: ");
+                        String email = scanner.nextLine();
+                
+                        // Check if user already exists
+                        if (libraryDatabase.getUserDatabase().userExists(email)) {
+                            System.out.println("User already exists with this email. Attempt " + attempts + " of 5.");
+                            if (attempts == 5) {
+                                System.out.println("You have reached the maximum attempts. Redirecting to the main menu.");
+                                break;  // Break out of the loop and return to the main menu
+                            }
+                            continue;  // Continue to next attempt
+                
+                        } else {
+                            System.out.print("Enter password: ");
+                            String password = scanner.nextLine();
+                
+                            // Validate password strength (example: length check)
+                            if (password.length() < 6) {
+                                System.out.println("Password must be at least 6 characters long. Attempt " + attempts + " of 5.");
+                                if (attempts == 5) {
+                                    System.out.println("You have reached the maximum attempts. Redirecting to the main menu.");
+                                    break;  // Break out of the loop and return to the main menu
+                                }
+                                continue;  // Continue to next attempt
+                            }
+                
+                            System.out.print("Enter date of birth (YYYY-MM-DD): ");
+                            String birthDayStr = scanner.nextLine();
+                
+                            // Validate date of birth format (this assumes you are working with a valid date format)
+                            LocalDate birthDate = null;
+                            try {
+                                birthDate = LocalDate.parse(birthDayStr);
+                            } catch (DateTimeParseException e) {
+                                System.out.println("Invalid date format. Please use YYYY-MM-DD. Attempt " + attempts + " of 5.");
+                                if (attempts == 5) {
+                                    System.out.println("You have reached the maximum attempts. Redirecting to the main menu.");
+                                    break;  // Break out of the loop and return to the main menu
+                                }
+                                continue;  // Continue to next attempt
+                            }
+                
+                            // Validate age (must be between 12 and 65 years old)
+                            int age = Period.between(birthDate, LocalDate.now()).getYears();
+                            if (age < 12 || age > 65) {
+                                System.err.println("You are too young or too old to register. Attempt " + attempts + " of 5.");
+                                if (attempts == 5) {
+                                    System.out.println("You have reached the maximum attempts. Redirecting to the main menu.");
+                                    break;  // Break out of the loop and return to the main menu
+                                }
+                                continue;  // Continue to next attempt
+                            }
+                
+                            // If all validations pass, register the user
+                            libraryDatabase.getUserDatabase().registerUser(name, email, password, birthDayStr);
+                            System.out.println("User registered successfully.");
+                            registrationSuccess = true;  // Registration successful, exit the loop
+                        }
+                    }
+                
+                    // After 5 failed attempts, you would have exited the loop, so here the menu is called
+                    if (!registrationSuccess) {
+                        System.out.println("Returning to the main menu...");
                     }
                 }
+                
                 case 3 -> {
                     // Closes the app
                     exit = true;
@@ -93,11 +154,11 @@ public class HelloWorld {
             //options
             switch (choice) {
                 // display users info
-
                 case 1 -> System.out.printf("\nName : %s\nD.O.B: %s\nAge  : %d years old\n", user.getName(), user.getBirthDay(), user.age());
+
                 // Displays the books in the library
-                //case 2 -> addOrRemoveBooks() --> need a way to save books to a dat file
                 case 2 -> borrowBooks(user, availableBooks, scanner);
+                
                 // Displays the books the user has taken out
                 case 3 -> {
                     List<Book> borrowedBooks = user.getBorrowedBooks();
@@ -110,13 +171,17 @@ public class HelloWorld {
                         }
                     }
                 }
+
                 // Displays the books the user can return
                 case 4 -> returnBooks(user, scanner);
+
                 // Logs out
                 case 5 -> {
                     exit = true;
                     System.out.println("You've been logout");
                 }
+
+                // Else this will display
                 default -> System.out.println("\nInvalid option. Please choose again.");
             }
         }

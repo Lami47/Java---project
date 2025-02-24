@@ -1,10 +1,8 @@
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Period;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import java.io.Serializable;
 
 public class User implements Serializable{
     private static final long serialVersionUID = 1L; // for verification purposes
@@ -38,7 +36,7 @@ public class User implements Serializable{
         return age.getYears();
     }
 
-    // To borrow books
+    // Take a book out
     public void borrow(Book book) {
         if (borrowedBooks.size() < 3) { // Limits to 3 books
             borrowedBooks.add(book);
@@ -47,7 +45,7 @@ public class User implements Serializable{
             System.out.println("You cannot borrow more than 3 books.");
         }
     }
-    // To return books
+    // Return a/the books
     public void returnBook(Book book) {
         if (borrowedBooks.remove(book)) {
             System.out.printf("%s has returned \"%s\" by %s\n", name, book.getTitle(), book.getAuthor());
@@ -60,7 +58,8 @@ public class User implements Serializable{
         return new ArrayList<>(borrowedBooks); // List
     }
 
+    //verify password for login
     public boolean checkPassword(String password) {
-        return this.password.equals(password); //pwd check for login
+        return this.password.equals(password); 
     }
 }
